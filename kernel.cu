@@ -12,10 +12,12 @@ __global__ void kernel(Particle* device_particles, int num_particles)
     {
         if (i == index)
             continue;
-
         Particle& other = device_particles[i];
         particle.repelOther(other.pos);
     }
+
+    particle.repelReflectBox(Vec2f(0.0f, 0.0f), Vec2f(0.4f, 0.4f));
+
     particle.eulerIntegration();
     particle.reflectEdgeScreen();
 }

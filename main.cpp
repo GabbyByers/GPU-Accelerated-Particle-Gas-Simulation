@@ -7,6 +7,18 @@
 #include "Physics.h"
 #include "GasRenderer.h"
 
+struct Circle
+{
+	Vec2f pos;
+	float radius;
+};
+
+struct Box
+{
+	Vec2f pos;
+	Vec2f dim;
+};
+
 int main()
 {
 	Game game(950);
