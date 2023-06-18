@@ -19,4 +19,18 @@ public:
 		delete window;
 		delete event;
 	}
+
+	bool open()
+	{
+		return window->isOpen();
+	}
+
+	void eventHandler()
+	{
+		while (window->pollEvent(*event))
+		{
+			if (event->type == sf::Event::Closed)
+				window->close();
+		}
+	}
 };

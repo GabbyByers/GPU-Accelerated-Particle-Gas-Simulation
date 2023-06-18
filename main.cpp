@@ -26,14 +26,9 @@ int main()
 	GasRenderer gasRenderer(&gas);
 	Physics physics(&gas);
 
-	while (game.window->isOpen())
+	while (game.open())
 	{
-		while (game.window->pollEvent(*game.event))
-		{
-			if (game.event->type == sf::Event::Closed)
-				game.window->close();
-		}
-
+		game.eventHandler();
 		physics.simulate();
 		gasRenderer.render();
 	}
