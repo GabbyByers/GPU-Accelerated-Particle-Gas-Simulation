@@ -7,26 +7,75 @@ public:
 	Vec2f vel;
     Vec2f acc;
 
-    float range = 0.05f;
+    float range = 0.1f;
     float magnitude = 0.00005f;
 
-    __host__ __device__ Particle() {}
+    __device__ Particle() {}
 
-    __host__ __device__ void eulerIntegration()
+    __device__ void eulerIntegration()
     {
         vel += acc;
         pos += vel;
         acc = 0.0f;
 
-        vel *= 0.999f;
+        vel *= 0.995f;
     }
 
-    __host__ __device__ void repelBox(const Vec2f& box_pos, Vec2f box_dim)
+    __device__ void repelBox(const Vec2f& box_pos, const Vec2f& box_dim)
     {
+        float x0 = box_pos.x - range;
+        float x1 = box_pos.x;
+        float x2 = box_pos.x + box_dim.x;
+        float x3 = box_pos.x + box_dim.x + range;
+
+        float y0 = box_pos.y - range;
+        float y1 = box_pos.y;
+        float y2 = box_pos.y + box_dim.y;
+        float y3 = box_pos.y + box_dim.y + range;
+
+        bool isInsideLargeBound = ((x0 <= pos.x) && (pos.x < x3)) && ((y0 <= pos.y) && (pos.y < y3));
+        bool isInsideSmallBound = ((x1 <= pos.x) && (pos.x < x2)) && ((y1 <= pos.y) && (pos.y < y2));
+
+        if (!isInsideLargeBound)
+        {
+            return;
+        }
         
+        if (isInsideSmallBound)
+        {
+            vel *= 1.01;
+        }
+
+        float magnitude_modifer = 10.0f;
+
+        if (((x0 <= pos.x) && (pos.x < x1)) && ((y0 <= pos.y) && (pos.y < y1))) // 1
+            repelOther(Vec2f(x1, y1), magnitude_modifer);
+
+        if (((x1 <= pos.x) && (pos.x < x2)) && ((y0 <= pos.y) && (pos.y < y1))) // 2
+            repelOther(Vec2f(pos.x, y1), magnitude_modifer);
+
+        if (((x2 <= pos.x) && (pos.x < x3)) && ((y0 <= pos.y) && (pos.y < y1))) // 3
+            repelOther(Vec2f(y2, x1), magnitude_modifer);
+
+        if (((x2 <= pos.x) && (pos.x < x3)) && ((y1 <= pos.y) && (pos.y < y2))) // 4
+            repelOther(Vec2f(x2, pos.y), magnitude_modifer);
+
+        if (((x2 <= pos.x) && (pos.x < x3)) && ((y2 <= pos.y) && (pos.y < y3))) // 5
+            repelOther(Vec2f(x2, y2), magnitude_modifer);
+
+        if (((x1 <= pos.x) && (pos.x < x2)) && ((y2 <= pos.y) && (pos.y < y3))) // 6
+            repelOther(Vec2f(pos.x, y2), magnitude_modifer);
+
+        if (((x0 <= pos.x) && (pos.x < x1)) && ((y2 <= pos.y) && (pos.y < y3))) // 7
+            repelOther(Vec2f(x1, y2), magnitude_modifer);
+
+        if (((x0 <= pos.x) && (pos.x < x1)) && ((y1 <= pos.y) && (pos.y < y2))) // 8
+            repelOther(Vec2f(x1, pos.y), magnitude_modifer);
+
+        return;
     }
 
-    __host__ __device__ void repelOther(const Vec2f& other_pos)
+    __device__ void repelOther(const Vec2f& other_pos, float magnitide_modifier)
     {
         float dist = pos.dist(other_pos);
         if (dist > range)
@@ -39,11 +88,11 @@ public:
 
         Vec2f force = pos - other_pos;
         force.normalize();
-        force *= magnitude * compression;
+        force *= magnitude * compression * magnitide_modifier;
         acc += force;
     }
 
-    __host__ __device__ void repelEdgeScreen() // soon to be legacy
+    __device__ void repelEdgeScreen() // soon to be legacy
 	{
         if (pos.x > 1.0f) {
             pos.x = 1.0f;
