@@ -7,8 +7,8 @@ public:
 	Vec2f vel;
     Vec2f acc;
 
-    float range = 0.1f;
-    float magnitude = 0.00005f;
+    float range = 0.05f;
+    float magnitude = 0.0001f;
 
     __device__ Particle() {}
 
@@ -18,7 +18,7 @@ public:
         pos += vel;
         acc = 0.0f;
 
-        vel *= 0.995f;
+        vel *= 0.997f;
     }
 
     __device__ void repelBox(const Vec2f& box_pos, const Vec2f& box_dim)
@@ -92,7 +92,7 @@ public:
         acc += force;
     }
 
-    __device__ void repelEdgeScreen() // soon to be legacy
+    __device__ void repelEdgeScreen()
 	{
         if (pos.x > 1.0f) {
             pos.x = 1.0f;

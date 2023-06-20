@@ -16,7 +16,11 @@ __global__ void kernel(Particle* device_particles, int num_particles)
         particle.repelOther(other.pos, 1.0f);
     }
 
-    particle.repelBox(Vec2f(0.0f, 0.0f), Vec2f(0.4f, 0.4f));
+    float margin = 0.00001f;
+    particle.repelBox(Vec2f(-1.0f, -2.0f - margin), Vec2f(2.0f, 1.0f));
+    particle.repelBox(Vec2f(1.0f + margin, -1.0f), Vec2f(1.0f, 2.0f));
+    particle.repelBox(Vec2f(-1.0f, 1.0f + margin), Vec2f(2.0f, 1.0f));
+    particle.repelBox(Vec2f(-2.0f - margin, -1.0f), Vec2f(1.0f, 2.0f));
 
     particle.eulerIntegration();
     particle.repelEdgeScreen();
