@@ -12,14 +12,6 @@ public:
 
     __device__ Particle() {}
 
-    __device__ void eulerIntegration()
-    {
-        vel += acc;
-        pos += vel;
-        acc = 0.0f;
-
-        vel *= 0.997f;
-    }
 
     __device__ void repelBox(const Vec2f& box_pos, const Vec2f& box_dim)
     {
@@ -46,7 +38,7 @@ public:
             vel *= 1.01;
         }
 
-        float magnitude_modifer = 10.0f;
+        float magnitude_modifer = 5.0f;
 
         if (((x0 <= pos.x) && (pos.x < x1)) && ((y0 <= pos.y) && (pos.y < y1))) // 1
             repelOther(Vec2f(x1, y1), magnitude_modifer);
@@ -82,17 +74,32 @@ public:
             return;
         if (dist == 0.0f)
             return;
-
         float pierce = range - dist;
         float compression = pierce / range;
-
         Vec2f force = pos - other_pos;
         force.normalize();
         force *= magnitude * compression * magnitide_modifier;
         acc += force;
+
+        //float dist = pos.dist(other_pos);
+        //if (dist == 0.0f)
+        //    return;
+        //Vec2f force = pos - other_pos;
+        //force.normalize();
+        //force *= (1.0f / (1000000.0f * dist)) * magnitide_modifier;
+        //acc += force;
+    }
+    
+    __device__ void repelEdgeScreen()
+    {
+        float margin = 0.0001f;
+        repelBox(Vec2f(-1.0f, -2.0f - margin), Vec2f(2.0f, 1.0f));
+        repelBox(Vec2f(1.0f + margin, -1.0f), Vec2f(1.0f, 2.0f));
+        repelBox(Vec2f(-1.0f, 1.0f + margin), Vec2f(2.0f, 1.0f));
+        repelBox(Vec2f(-2.0f - margin, -1.0f), Vec2f(1.0f, 2.0f));
     }
 
-    __device__ void repelEdgeScreen()
+    __device__ void reflectEdgeScreen()
 	{
         if (pos.x > 1.0f) {
             pos.x = 1.0f;
@@ -114,4 +121,13 @@ public:
             vel.y *= -1;
         }
 	}
+    
+    __device__ void eulerIntegration()
+    {
+        vel += acc;
+        pos += vel;
+        acc = 0.0f;
+
+        vel *= 0.99f;
+    }
 };

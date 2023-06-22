@@ -5,7 +5,7 @@ class Gas
 public:
 	Game* game = nullptr;
 	Particle* particles = nullptr;
-	int num_particles = 10000;
+	int num_particles = 500;
 
 	Gas(Game* game)
 	{
