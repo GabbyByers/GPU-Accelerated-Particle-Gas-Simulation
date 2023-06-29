@@ -1,36 +1,21 @@
-#include "kernel.cuh"
 #include <iostream>
-
+#include "kernel.cuh"
 #include "SFML/Graphics.hpp"
 #include "Game.h"
-#include "Gas.h"
-#include "Physics.h"
-#include "GasRenderer.h"
+#include "Simulation.h"
 
-struct Circle
-{
-	Vec2f pos;
-	float radius;
-};
+#include "GalaxyRenderer.h"
 
-struct Box
-{
-	Vec2f pos;
-	Vec2f dim;
-};
+int main() {
+	Game game(500, 500);
+	Simulation simulation(&game, 10000);
+	GalaxyRenderer galaxyRenderer(&game, &simulation);
 
-int main()
-{
-	Game game(950);
-	Gas gas(&game);
-	GasRenderer gasRenderer(&gas);
-	Physics physics(&gas);
-
-	while (game.open())
-	{
+	while (game.open()) {
 		game.eventHandler();
-		physics.simulate();
-		gasRenderer.render();
+		simulation.simulate();
+		galaxyRenderer.render();
+		galaxyRenderer.draw();
 	}
 
 	return 0;
